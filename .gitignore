@@ -1,4 +1,4 @@
 .env
 info.php
 backup.sql
-img
+img/*
