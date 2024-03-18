@@ -13,7 +13,7 @@ class CreateImagesTable1 implements SchemaMigration
             uid VARCHAR(500) PRIMARY KEY,
             name VARCHAR(100),
             filetype VARCHAR(100),
-            deleteURL VARCHAR(1000),
+            deleteKey VARCHAR(32) UNIQUE,
             expire_datetime DATETIME NULL,
             viewCount INT,
             created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

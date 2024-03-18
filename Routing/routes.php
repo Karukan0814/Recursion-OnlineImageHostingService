@@ -46,10 +46,10 @@ return [
                 $timestamp = $currentTime->getTimestamp();
                 $randomNumber = random_int(1, 500); // 安全なランダムな整数を生成
                 $uid = strval($randomNumber) . strval($timestamp);
-                
+
                 // ファイルの保存処理
                 $uploadDirectory = $_SERVER['DOCUMENT_ROOT'] . "/img"; // プロジェクトのルートディレクトリに対する相対パス
-                $uploadPath = $uploadDirectory . "/" .$uid. rawurlencode(basename($file['name'])); // アップロード先のパスを作成（ファイル名を含む）
+                $uploadPath = $uploadDirectory . "/" . $uid . rawurlencode(basename($file['name'])); // アップロード先のパスを作成（ファイル名を含む）
 
                 if (move_uploaded_file($fileTmpName, $uploadPath)) {
 
@@ -59,8 +59,8 @@ return [
 
                         // 削除用URLを作成
                         $randomBytes = random_bytes(16); // 16バイトのランダムなバイトを生成
-                        $uniqueKey = bin2hex($randomBytes); // バイトを16進数に変換
-                        $deleteURL = "/delete/?key=" . $uniqueKey;
+                        $deleteKey = bin2hex($randomBytes); // バイトを16進数に変換
+                        // $deleteURL = "/delete/?key=" . $uniqueKey;
 
                         //削除日を設定（一時間後に設定しておく）
 
@@ -71,11 +71,11 @@ return [
 
 
 
-                        $result = DatabaseHelper::insertImage($uid, $fileNameRes["value"], $fileTypeRes["value"], $deleteURL,  $expireDateTime);
+                        $result = DatabaseHelper::insertImage($uid, $fileNameRes["value"], $fileTypeRes["value"], $deleteKey,  $expireDateTime);
 
                         // SQLでファイルの情報をテーブルに格納できたら、ファイル本体をフォルダに格納する            
 
-                        return new HTMLRenderer('register-result', ["uid" => $result["uid"]]);
+                        return new HTMLRenderer('register-result', ["image" => $result]);
                     } catch (Exception $e) {
                         $allErrors = [$e->getMessage()];
                         return new HTMLRenderer('new-img', ['errors' => $allErrors]);
@@ -97,28 +97,64 @@ return [
     },
     'show' => function (): HTTPRenderer {
         // 指定されたスニペットの表示ページ
-$allErrors=[];
+        $allErrors = [];
         // GETで渡されたuidの受け取り
-       $uid= $_GET['uid']??null;
-       if(is_null($uid)){
+        $uid = $_GET['uid'] ?? null;
+        if (is_null($uid)) {
 
-           $allErrors[]="uid is necessary.";
-        return new HTMLRenderer('show-image', ['errors' => $allErrors]);
-           
+            $allErrors[] = "uid is necessary.";
+            return new HTMLRenderer('show-image', ['errors' => $allErrors]);
         }
 
         // 閲覧回数とexpire_datetimeの更新
-        $updateResult=DatabaseHelper::incrementViewCount($uid);
-        if(!$updateResult){
-            $allErrors[]="updating info failed.";
+        $updateResult = DatabaseHelper::incrementViewCount($uid);
+        if (!$updateResult) {
+            $allErrors[] = "updating info failed.";
             return new HTMLRenderer('show-image', ['errors' => $allErrors]);
-               
         }
 
         // 画像情報の取得
 
-        $image=DatabaseHelper::getImage($uid);
+        $image = DatabaseHelper::getImageByUid($uid);
 
-        return new HTMLRenderer('show-image', ['image'=> $image]);
+        return new HTMLRenderer('show-image', ['image' => $image]);
+    },
+    'delete' => function (): HTTPRenderer {
+        // 指定されたスニペットの表示ページ
+        $allErrors = [];
+        // GETで渡されたkeyの受け取り
+        $key = $_GET['key'] ?? null;
+        if (is_null($key)) {
+
+            $allErrors[] = "secret key is necessary.";
+            return new HTMLRenderer('show-image', ['errors' => $allErrors]);
+        }
+
+        // 該当のキーのimageの情報を検索
+        $image = DatabaseHelper::getImageByDeleteKey($key);
+        if (!$image) {
+            $allErrors[] = "Image does not exist.";
+            return new HTMLRenderer('delete-result', ['errors' => $allErrors]);
+        }
+
+        // 該当のimageの情報をテーブルから削除する
+        $deleteResult = DatabaseHelper::deleteImageByDeleteKey($key);
+        if (!$deleteResult) {
+            $allErrors[] = "deleting image failed.";
+            return new HTMLRenderer('delete-result', ['errors' => $allErrors]);
+        }
+
+        // ファイルの保存処理
+        $fileDirectory = $_SERVER['DOCUMENT_ROOT'] . "/img"; // プロジェクトのルートディレクトリに対する相対パス
+        $fielPath = $fileDirectory . "/" . $image['uid'] . rawurlencode($image['name']); // アップロード先のパスを作成（ファイル名を含む）
+        print_r($fielPath);
+
+        $result = false;
+        if (unlink($fielPath)) {
+            $result = true;
+
+            return new HTMLRenderer('delete-result', ['result' => $result]);
+        }
+        return new HTMLRenderer('delete-result', ['result' => $result]);
     },
 ];

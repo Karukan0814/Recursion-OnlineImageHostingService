@@ -8,12 +8,29 @@ use Exception;
 
 class DatabaseHelper
 {
-    public static function getImage($uid): array {
+    public static function getImageByUid($uid): array {
         $db = new MySQLWrapper();
     
         // IDで画像を取得するステートメントを準備
         $stmt = $db->prepare("SELECT * FROM images WHERE uid = ?");
         $stmt->bind_param('s', $uid);
+        $stmt->execute();
+    
+        $result = $stmt->get_result();
+        $image = $result->fetch_assoc();
+        if (!$image) {
+            throw new Exception("This image does not exist");
+        }
+    
+        return $image;
+    }
+
+    public static function getImageByDeleteKey($deleteKey): array {
+        $db = new MySQLWrapper();
+    
+        // IDで画像を取得するステートメントを準備
+        $stmt = $db->prepare("SELECT * FROM images WHERE deleteKey = ?");
+        $stmt->bind_param('s', $deleteKey);
         $stmt->execute();
     
         $result = $stmt->get_result();
@@ -44,18 +61,18 @@ class DatabaseHelper
             return false; // 更新失敗（対象の画像が見つからないなど）
         }
     }
-    public static function insertImage($uid,$name,$fileType,$deleteURL, $expireDatetime): array {
+    public static function insertImage($uid,$name,$fileType,$deleteKey, $expireDatetime): array {
         $db = new MySQLWrapper();
     
         // INSERT文を準備
-        $stmt = $db->prepare("INSERT INTO images (uid,name,  fileType,deleteURL, expire_datetime,viewCount) VALUES (?,?, ?, ?, ?,?)");
+        $stmt = $db->prepare("INSERT INTO images (uid,name,  fileType,deleteKey, expire_datetime,viewCount) VALUES (?,?, ?, ?, ?,?)");
     
 
  // viewCount の初期値を設定
  $viewCount = 0;
 
         // パラメータをバインド
-        $stmt->bind_param('sssssi', $uid,$name, $fileType,$deleteURL,  $expireDatetime,$viewCount);
+        $stmt->bind_param('sssssi', $uid,$name, $fileType,$deleteKey,  $expireDatetime,$viewCount);
     
         // SQLを実行
         $stmt->execute();
@@ -75,6 +92,27 @@ class DatabaseHelper
 
         return $image;
     }
+
+    public static function deleteImageByDeleteKey($deleteKey): bool {
+        $db = new MySQLWrapper();
+    
+        // DELETE文を準備
+        $stmt = $db->prepare("DELETE FROM images WHERE deleteKey = ?");
+    
+        // パラメータをバインド
+        $stmt->bind_param('s', $deleteKey);
+    
+        // SQLを実行
+        $stmt->execute();
+    
+        // 影響を受けた行数をチェック（削除が成功したかどうかを確認）
+        if ($stmt->affected_rows > 0) {
+            return true; // 削除成功
+        } else {
+            return false; // 削除失敗（対象の画像が見つからないなど）
+        }
+    }
+    
     public static function insertSnippet($uid,$title,$text,  $syntax, $expireDatetime): array {
         $db = new MySQLWrapper();
     
