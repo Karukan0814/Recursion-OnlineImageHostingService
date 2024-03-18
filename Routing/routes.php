@@ -49,7 +49,7 @@ return [
                 
                 // ファイルの保存処理
                 $uploadDirectory = $_SERVER['DOCUMENT_ROOT'] . "/img"; // プロジェクトのルートディレクトリに対する相対パス
-                $uploadPath = $uploadDirectory . "/" .$uid. basename($file['name']); // アップロード先のパスを作成（ファイル名を含む）
+                $uploadPath = $uploadDirectory . "/" .$uid. rawurlencode(basename($file['name'])); // アップロード先のパスを作成（ファイル名を含む）
 
                 if (move_uploaded_file($fileTmpName, $uploadPath)) {
 
@@ -77,8 +77,8 @@ return [
 
                         return new HTMLRenderer('register-result', ["uid" => $result["uid"]]);
                     } catch (Exception $e) {
-                        // $allErrors = ["registering this file was failed."];
-                        return new HTMLRenderer('new-img', ['errors' => $e->getMessage()]);
+                        $allErrors = [$e->getMessage()];
+                        return new HTMLRenderer('new-img', ['errors' => $allErrors]);
                     }
                 } else {
                     // ファイルの移動に失敗した場合
@@ -97,7 +97,28 @@ return [
     },
     'show' => function (): HTTPRenderer {
         // 指定されたスニペットの表示ページ
+$allErrors=[];
+        // GETで渡されたuidの受け取り
+       $uid= $_GET['uid']??null;
+       if(is_null($uid)){
 
-        return new HTMLRenderer('show-image', []);
+           $allErrors[]="uid is necessary.";
+        return new HTMLRenderer('show-image', ['errors' => $allErrors]);
+           
+        }
+
+        // 閲覧回数とexpire_datetimeの更新
+        $updateResult=DatabaseHelper::incrementViewCount($uid);
+        if(!$updateResult){
+            $allErrors[]="updating info failed.";
+            return new HTMLRenderer('show-image', ['errors' => $allErrors]);
+               
+        }
+
+        // 画像情報の取得
+
+        $image=DatabaseHelper::getImage($uid);
+
+        return new HTMLRenderer('show-image', ['image'=> $image]);
     },
 ];

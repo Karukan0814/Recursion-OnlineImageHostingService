@@ -2,36 +2,19 @@
 use Database\MySQLWrapper;
 
 
+print_r($image);
+print_r($errors);
 
-// URLクエリパラメータを通じてIDが提供されたかどうかをチェックします。
-$uid = $_GET['uid'] ?? null;
-if ($uid ){
-    
-    // データベース接続を初期化します。
-    $db = new MySQLWrapper();
-    
-    try {
-        // IDでスニペットを取得するステートメントを準備します。
-        $stmt = $db->prepare("SELECT * FROM images WHERE uid = ?");
-        $stmt->bind_param('s', $uid);
-        $stmt->execute();
-        
-        $result = $stmt->get_result();
-        $image = $result->fetch_assoc();
-        if (!$image){
-            throw new Exception("this image does not exist");
-        }
+if(!$image){
 
-    } catch (Exception $e) {
-        die("Error fetching image by uid: " . $e->getMessage());
-    }
+    
+    die("Error fetching image by uid " );
 }else{
-    die("uid is necessary." );
 
+    $imagePath =  "/../img/" . htmlspecialchars($image['uid']) . htmlspecialchars($image['name']);
 }
 
 // 画像ファイルのパスを作成
-$imagePath =  "/../img/" . htmlspecialchars($image['uid']) . htmlspecialchars($image['name']);
 
 
 ?>

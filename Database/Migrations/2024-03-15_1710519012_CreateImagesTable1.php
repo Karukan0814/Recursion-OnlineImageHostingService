@@ -15,6 +15,7 @@ class CreateImagesTable1 implements SchemaMigration
             filetype VARCHAR(100),
             deleteURL VARCHAR(1000),
             expire_datetime DATETIME NULL,
+            viewCount INT,
             created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 
