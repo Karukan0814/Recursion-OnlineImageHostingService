@@ -5,7 +5,27 @@ spl_autoload_register();
 $DEBUG = true;
 
 
+// セッションクッキーの有効期限を24時間に設定
+$lifetime = 86400; // 秒単位
+session_set_cookie_params($lifetime);
 
+// セッションを開始
+
+
+// アップロード履歴を保存する配列を格納
+if (!isset($_SESSION['upload_history'])) {
+    $_SESSION['upload_history'] = [];
+} else {
+    // 現在の時間
+    $currentTime = time();
+
+    // アップロード履歴のクリーンアップ（1時間以上前の記録を削除）
+    foreach ($_SESSION['upload_history'] as $key => $value) {
+        if ($currentTime - $value['time'] > 3600) { // 3600秒 = 1時間
+            unset($_SESSION['upload_history'][$key]);
+        }
+    }
+}
 
 
 
@@ -36,7 +56,7 @@ if (isset($routes[$path])) {
     // コールバックを呼び出してrendererを作成します。
     $renderer = $routes[$path]();
 
-    try{
+    try {
         // ヘッダーを設定します。
         foreach ($renderer->getFields() as $name => $value) {
             // ヘッダーに対する単純な検証を実行します。
@@ -49,17 +69,16 @@ if (isset($routes[$path])) {
                 // ヘッダー設定に失敗した場合、ログに記録するか処理します。
                 // エラー処理によっては、例外をスローするか、デフォルトのまま続行することもできます。
                 http_response_code(500);
-                if($DEBUG) print("Failed setting header - original: '$value', sanitized: '$sanitized_value'");
+                if ($DEBUG) print("Failed setting header - original: '$value', sanitized: '$sanitized_value'");
                 exit;
             }
 
             print($renderer->getContent());
         }
-    }
-    catch (Exception $e){
+    } catch (Exception $e) {
         http_response_code(500);
         print("Internal error, please contact the admin.<br>");
-        if($DEBUG) print($e->getMessage());
+        if ($DEBUG) print($e->getMessage());
     }
 } else {
     // マッチするルートがない場合、404エラーを表示します。

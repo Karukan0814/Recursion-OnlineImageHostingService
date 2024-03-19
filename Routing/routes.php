@@ -6,6 +6,9 @@ use Response\HTTPRenderer;
 use Response\Render\HTMLRenderer;
 use Response\Render\JSONRenderer;
 
+
+
+
 return [
     '' => function (): HTTPRenderer {
         //初期表示　スニペットリストページ
@@ -27,6 +30,26 @@ return [
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // 登録する画像のバリデーション（必要なら）
             if (isset($_FILES['image'])) {
+
+                // 一定の時間内にアップロードできるファイルの数やデータ量の制限に引っ掛かっていないか
+
+                // 制限パラメータ
+                $maxFiles = 5; // 1時間あたりの最大アップロードファイル数
+                $maxSize = 10* 1024 * 1024; // 1時間あたりの最大アップロードサイズ（10MB）
+
+                // 現在の時間
+                $currentTime = time();
+
+                // ユーザー識別子（IPアドレスまたはセッションID）
+                $userIdentifier = $_SERVER['REMOTE_ADDR']; // または session_id();
+                // ユーザーのアップロード履歴を取得
+                $uploadHistory = $_SESSION['upload_history'][$userIdentifier] ?? ['count' => 0, 'size' => 0, 'time' => $currentTime];
+
+                // アップロード制限のチェック
+                if ($uploadHistory['count'] >= $maxFiles || $uploadHistory['size'] >= $maxSize) {
+                    die("Upload limit exceeded. Please try again later.");
+                }
+
                 $file = $_FILES['image'];
                 $fileNameRes = ValidationHelper::validateText($file['name'] ?? null, 1, 100);
                 $fileTypeRes = ValidationHelper::validateFileType($file['type'] ?? null);
@@ -73,7 +96,11 @@ return [
 
                         $result = DatabaseHelper::insertImage($uid, $fileNameRes["value"], $fileTypeRes["value"], $deleteKey,  $expireDateTime);
 
-                        // SQLでファイルの情報をテーブルに格納できたら、ファイル本体をフォルダに格納する            
+                        // セッションにアップロード履歴を入れる
+                        $uploadHistory['count']++;
+                        $uploadHistory['size'] += $_FILES['image']['size'];
+                        $_SESSION['upload_history'][$userIdentifier] = $uploadHistory;
+
 
                         return new HTMLRenderer('register-result', ["image" => $result]);
                     } catch (Exception $e) {
