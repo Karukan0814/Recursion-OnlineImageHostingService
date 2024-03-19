@@ -177,4 +177,20 @@ class ValidationHelper
 
         return $response; // 'YYYY-MM-DD HH:MM:SS'形式で返す
     }
+    public static function validateFileSize($fileSize)
+{
+    $maxSize = 2 * 1024 * 1024; // 2MBをバイト単位で指定
+
+    $error = [];
+    $response = [
+        "error" => $error,
+        "value" => $fileSize
+    ];
+
+    if ($fileSize > $maxSize) {
+        $response["error"][] = "File size: File is too large (maximum 2MB)";
+    }
+
+    return $response;
+}
 }

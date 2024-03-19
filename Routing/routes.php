@@ -54,12 +54,14 @@ return [
                 $fileNameRes = ValidationHelper::validateText($file['name'] ?? null, 1, 100);
                 $fileTypeRes = ValidationHelper::validateFileType($file['type'] ?? null);
 
+                $fileSizeRes= ValidationHelper::validateFileSize($file['size']);
+
                 $fileTmpName = $file['tmp_name'];
 
 
 
-                if (count($fileNameRes["error"]) > 0 || count($fileTypeRes["error"]) > 0) {
-                    $allErrors = array_merge($fileNameRes["error"], $fileTypeRes["error"]);
+                if (count($fileNameRes["error"]) > 0 || count($fileTypeRes["error"]) > 0|| count($fileSizeRes["error"]) > 0) {
+                    $allErrors = array_merge($fileNameRes["error"], $fileTypeRes["error"],$fileSizeRes["error"]);
                     //全てのエラーを初期ページに引き渡す
                     return new HTMLRenderer('new-img', ['errors' => $allErrors]);
                 }
