@@ -6,7 +6,7 @@ use Database\MySQLWrapper;
 if(!$image){
 
     
-    die("Error fetching image by uid " );
+    print_r("Error fetching image by uid " );
 }else{
 
     $imagePath =  "/../img/" . htmlspecialchars($image['uid']) . htmlspecialchars($image['name']);
@@ -17,7 +17,13 @@ if(!$image){
 
 ?>
 <div id="" style="display: flex;  flex-direction: column;">
-
+<div>
+    <?php if (!empty($errors)) : ?>
+        <?php foreach ($errors as $error) : ?>
+            <div class="alert alert-info"><?= htmlspecialchars($error); ?></div>
+        <?php endforeach; ?>
+    <?php endif; ?>
+</div>
 
 
 <div>id: <?= htmlspecialchars($image['uid']) ?></div>
