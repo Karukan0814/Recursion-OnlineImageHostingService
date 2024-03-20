@@ -3,7 +3,6 @@
 spl_autoload_extensions(".php");
 spl_autoload_register();
 
-use Database\MySQLWrapper;
 use Helpers\DatabaseHelper;
 
 
@@ -11,6 +10,11 @@ use Helpers\DatabaseHelper;
 
 // テーブルからexpire_datetimeが過去になっているファイルを削除
 $deletedImages = DatabaseHelper::deleteAllExpiredImages();
+
+
+// ログファイル出力
+$logFile = __DIR__ . "/logs/logs.log";
+$message = "";
 
 if (!is_null($deletedImages) && count($deletedImages) > 0) {
 
@@ -31,9 +35,10 @@ if (!is_null($deletedImages) && count($deletedImages) > 0) {
             $deletedimgs[] = $image['uid'] . rawurlencode($image['name']);
         }
     }
+    // ログファイル出力
+    $message = "deleted images below :\n" . implode(',', $deletedimgs)."\n";
+}else{
+    $message = "No expired image.\n";
+    
 }
-
-// ログファイル出力
-$logFile = __DIR__ . "/logs/logs.log";
-$message = "deleted images below :\n" . implode(',', $deletedimgs);;
 file_put_contents($logFile, $message, FILE_APPEND);
