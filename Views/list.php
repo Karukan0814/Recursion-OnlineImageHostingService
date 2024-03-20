@@ -11,13 +11,13 @@
         <?php else: ?>
             <?php foreach ($images as $image): ?>
                 <div class="col-md-4">
-                    <div class="card mb-4">
-                        <img src="<?= '/img/' . htmlspecialchars($image['uid']) . rawurlencode($image['name']) ?>" class="card-img-top" alt="<?= htmlspecialchars($image['name']) ?>">
-                        <div class="card-body">
-                            <h5 class="card-title"><?= htmlspecialchars($image['name']) ?></h5>
-                            <p class="card-text">Expire: <?= $image['expire_datetime'] ? htmlspecialchars($image['expire_datetime']) : "never" ?></p>
-                        </div>
-                    </div>
+                <div class="card mb-4" style="aspect-ratio: 3 / 2;">
+                <img src="<?= '/img/' . htmlspecialchars($image['uid']) . rawurlencode($image['name']) ?>" class="card-img-top" alt="<?= htmlspecialchars($image['name']) ?>" style="object-fit: contain; height: 100%; width: 100%;">
+                <div class="card-body">
+                    <h5 class="card-title"><?= htmlspecialchars($image['name']) ?></h5>
+                    <p class="card-text">viewcount: <?= $image['viewCount'] ? htmlspecialchars($image['viewCount']) : "0" ?></p>
+                </div>
+            </div>
                 </div>
             <?php endforeach; ?>
         <?php endif; ?>
