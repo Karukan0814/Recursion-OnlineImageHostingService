@@ -11,6 +11,25 @@ use Helpers\Constants;
 
 class DatabaseHelper
 {
+
+    public static function getAllImages()
+    {
+        $db = new MySQLWrapper();
+
+        // 現在時刻を取得
+        $now = new DateTime();
+        $nowFormat = $now->format('Y-m-d H:i:s');
+
+        // 有効期限がまだ切れていない画像の情報を取得
+        $stmt = $db->prepare("SELECT * FROM images WHERE expire_datetime IS NULL OR expire_datetime >= ?");
+        $stmt->bind_param('s', $nowFormat);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $images = $result->fetch_all(MYSQLI_ASSOC);
+
+        // 画像の情報を返す
+        return $images;
+    }
     public static function getImageByUid($uid): array
     {
 
@@ -127,6 +146,38 @@ class DatabaseHelper
         } else {
             return false; // 削除失敗（対象の画像が見つからないなど）
         }
+    }
+
+    public static function deleteAllExpiredImages()
+    {
+        $db = new MySQLWrapper();
+
+        // 現在時刻を取得
+        $now = new DateTime();
+
+        $nowFormat = $now->format('Y-m-d H:i:s');
+
+        // 有効期限が現在時刻を過ぎた画像の情報を取得
+        $stmt = $db->prepare("SELECT * FROM images WHERE expire_datetime IS NOT NULL AND expire_datetime < ?");
+        $stmt->bind_param('s', $nowFormat);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $deletedImages = $result->fetch_all(MYSQLI_ASSOC);
+
+
+
+
+        // 有効期限が現在時刻を過ぎた画像を削除
+        $stmt = $db->prepare("DELETE FROM images WHERE expire_datetime IS NOT NULL AND expire_datetime < ?");
+
+        $stmt->bind_param('s', $nowFormat);
+        $stmt->execute();
+
+
+
+        // 削除した画像の情報を返す
+
+        return $deletedImages;
     }
 
     public static function insertSnippet($uid, $title, $text,  $syntax, $expireDatetime): array
