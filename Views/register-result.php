@@ -13,7 +13,7 @@ $linkUrl = $protocol . '://' . $host . "/show?uid=" . $image["uid"];
 $deleteUrl = $protocol . '://' . $host . "/delete?key=" . $image["deleteKey"];
 
 ?>
-<div class="container" style="height: 80vh;">
+<div class="container" >
 
     <div>
         <?php if (!empty($errors)) : ?>

@@ -17,7 +17,7 @@ if (!$image) {
 
 
 ?>
-<div class="container" style="height: 80vh;">
+<div class="container" >
 
     <div style="display: flex;  flex-direction: column; ">
         <div>
