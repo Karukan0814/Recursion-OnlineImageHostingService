@@ -1,13 +1,14 @@
 <?php
+
 use Database\MySQLWrapper;
 
 
 
-if(!$image){
+if (!$image) {
 
-    
-    print_r("Error fetching image by uid " );
-}else{
+
+    print_r("Error fetching image by uid ");
+} else {
 
     $imagePath =  "/../img/" . htmlspecialchars($image['uid']) . htmlspecialchars($image['name']);
 }
@@ -16,27 +17,27 @@ if(!$image){
 
 
 ?>
-<div id="" style="display: flex;  flex-direction: column;">
-<div>
-    <?php if (!empty($errors)) : ?>
-        <?php foreach ($errors as $error) : ?>
-            <div class="alert alert-info"><?= htmlspecialchars($error); ?></div>
-        <?php endforeach; ?>
-    <?php endif; ?>
+<div class="container" style="height: 80vh;">
+
+    <div style="display: flex;  flex-direction: column; ">
+        <div>
+            <?php if (!empty($errors)) : ?>
+                <?php foreach ($errors as $error) : ?>
+                    <div class="alert alert-info"><?= htmlspecialchars($error); ?></div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </div>
+
+
+        <div>id: <?= htmlspecialchars($image['uid']) ?></div>
+        <div>title: <?= htmlspecialchars($image['name']) ?></div>
+        <div>filetype: <?= htmlspecialchars($image['filetype']) ?></div>
+        <div>viewCount: <?= htmlspecialchars($image['viewCount']) ?></div>
+
+    </div>
+
+
+    <div style="width: 100%;   display: flex; justify-content: center; align-items: center;">
+        <img src=<?= $imagePath ?> alt=<?= htmlspecialchars($image['name']) ?> style="max-width: 600px; height: auto;">
+    </div>
 </div>
-
-
-<div>id: <?= htmlspecialchars($image['uid']) ?></div>
-
-    <div>title: <?= htmlspecialchars($image['name']) ?></div>
-    <div >filetype: <?= htmlspecialchars($image['filetype']) ?></div>
-    <div>viewCount: <?= htmlspecialchars($image['viewCount']) ?></div>
-
-</div>
-
-
-<div id="editor" style="width: 100%; height: 80vh; border: 1px solid slategray; display: flex; justify-content: center; align-items: center;">
-    <img src=<?= $imagePath ?> alt=<?= htmlspecialchars($image['name']) ?> style="max-width: 600px; height: auto;">
-</div>
-
-

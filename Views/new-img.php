@@ -14,7 +14,8 @@ $db = new MySQLWrapper();
 // phpによる処理をすべき場合は前段に記述
 
 ?>
-<div class="container">
+<div  style="height: 80vh;">
+
 <div>
     <?php if (!empty($errors)) : ?>
         <?php foreach ($errors as $error) : ?>

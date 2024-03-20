@@ -22,7 +22,7 @@
                     <a class="nav-link" href="/">Home</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/create">Create</a>
+                    <a class="nav-link" href="/create">Register</a>
                 </li>
    
             </ul>
