@@ -13,10 +13,12 @@
    アップロード画面から画像をアップロードできる。形式は一般的な画像形式である jpeg, png, gif に限る。
    画像をアップロード完了すると、2 つのリンク先がが表示される。
    上は画像の表示ページ。下は削除用 URL。アップロードしたユーザーがこの URL にアクセスすると画像がサーバーから削除される。
+
    ![service-image](https://github.com/Karukan0814/Recursion-OnlineImageHostingService/blob/main/assets/uploadImgsDemo.gif)
 
 2. 画像の一覧
    アップロードされた画像の一覧はホーム画面から閲覧できる。
+
    ![service-image](https://github.com/Karukan0814/Recursion-OnlineImageHostingService/blob/main/assets/list_example.png)
 
 3. 一日あたりアップロード回数とファイルサイズの制限
@@ -74,3 +76,27 @@ docker-compose exec web php console migrate --init
 
 6. 動作確認
    　[http://localhost:8080/](http://localhost:8080/)にアクセスして動作確認
+
+7. Cron ジョブの設定
+   　期限切れの画像を一日に一度、一括削除するバッチ処理を動かす。
+   　※以下は WSL 環境下での設定方法です。
+
+①. WSL で cron ジョブの設定ファイルを開く
+
+```
+crontab -e
+```
+
+②. 以下を追加の上、保存
+
+```
+0 0 * * * cd /mnt/[プロジェクトのディレクトリ] && /usr/bin/php delete-unusedFiles.php
+
+```
+
+③. cron ジョブをスタートさせる
+
+```
+sudo service cron start
+
+```
