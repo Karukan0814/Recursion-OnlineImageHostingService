@@ -8,11 +8,11 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 
-    <title>Text Snippet Sharing Service</title>
+    <title>Online Image Hosting Service</title>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-light bg-light p-3">
-        <a class="navbar-brand" href="/">Text Snippet Sharing Service</a>
+        <a class="navbar-brand" href="/">Online Image Hosting Service</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
