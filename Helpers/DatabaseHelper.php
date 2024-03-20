@@ -74,11 +74,11 @@ class DatabaseHelper
 
         // 現在時刻から1時間後の時刻を計算
         $now = new DateTime(); // 現在時刻を取得
-        $intervalSpec = Constants::EXPIRE_SPAN; // １時間後に失効にする
+        $intervalSpec = Constants::EXPIRE_SPAN; // １日後に失効にする
         $now->add(new DateInterval($intervalSpec)); // 時間を加える            
         $expireDateTime = $now->format('Y-m-d H:i:s'); //形式を整える
 
-        // viewCount を更新し、expire_datetime を1時間後に設定する SQL ステートメントを準備
+        // viewCount を更新し、expire_datetime を1日後に設定する SQL ステートメントを準備
         $stmt = $db->prepare("UPDATE images SET viewCount = viewCount + 1, expire_datetime = ? WHERE uid = ?");
 
         // パラメータをバインド
@@ -164,19 +164,12 @@ class DatabaseHelper
         $result = $stmt->get_result();
         $deletedImages = $result->fetch_all(MYSQLI_ASSOC);
 
-
-
-
         // 有効期限が現在時刻を過ぎた画像を削除
         $stmt = $db->prepare("DELETE FROM images WHERE expire_datetime IS NOT NULL AND expire_datetime < ?");
-
         $stmt->bind_param('s', $nowFormat);
         $stmt->execute();
 
-
-
         // 削除した画像の情報を返す
-
         return $deletedImages;
     }
 
@@ -193,8 +186,6 @@ class DatabaseHelper
         // SQLを実行
         $stmt->execute();
 
-        // // 挿入された行のIDを取得
-        // $insertedId = $stmt->insert_id;
 
         // 挿入された行を取得
         $stmt = $db->prepare("SELECT * FROM snippets WHERE uid = ?");
@@ -223,52 +214,5 @@ class DatabaseHelper
 
         // 削除された行数を返す
         return $stmt->affected_rows;
-    }
-
-    public static function getAllSnippets(): array
-    {
-        $db = new MySQLWrapper();
-
-        $stmt = $db->prepare("SELECT * FROM snippets ORDER BY created_at DESC");
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        $snippets = [];
-        while ($snippet = $result->fetch_assoc()) {
-            $snippets[] = $snippet;
-        }
-
-
-
-        return $snippets;
-    }
-    public static function getRandomComputerPart(): array
-    {
-        $db = new MySQLWrapper();
-
-        $stmt = $db->prepare("SELECT * FROM computer_parts ORDER BY RAND() LIMIT 1");
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $part = $result->fetch_assoc();
-
-        if (!$part) throw new Exception('Could not find a single part in database');
-
-        return $part;
-    }
-
-    public static function getComputerPartById(int $id): array
-    {
-        $db = new MySQLWrapper();
-
-        $stmt = $db->prepare("SELECT * FROM computer_parts WHERE id = ?");
-        $stmt->bind_param('i', $id);
-        $stmt->execute();
-
-        $result = $stmt->get_result();
-        $part = $result->fetch_assoc();
-
-        if (!$part) throw new Exception('Could not find a single part in database');
-
-        return $part;
     }
 }

@@ -31,8 +31,8 @@ return [
                 // 一定の時間内にアップロードできるファイルの数やデータ量の制限に引っ掛かっていないか
 
                 // 制限パラメータ
-                $maxFiles = 5; // 1時間あたりの最大アップロードファイル数
-                $maxSize = 10* 1024 * 1024; // 1時間あたりの最大アップロードサイズ（10MB）
+                $maxFiles = Constants::MAX_FILES; // 1時間あたりの最大アップロードファイル数
+                $maxSize = Constants::MAX_FILESIZE_SUM; // 1時間あたりの最大アップロードサイズ（10MB）
 
                 // 現在の時間
                 $currentTime = time();
@@ -50,7 +50,6 @@ return [
                 $file = $_FILES['image'];
                 $fileNameRes = ValidationHelper::validateText($file['name'] ?? null, 1, 100);
                 $fileTypeRes = ValidationHelper::validateFileType($file['type'] ?? null);
-
                 $fileSizeRes= ValidationHelper::validateFileSize($file['size']);
 
                 $fileTmpName = $file['tmp_name'];
@@ -82,19 +81,14 @@ return [
                         // 削除用URLを作成
                         $randomBytes = random_bytes(16); // 16バイトのランダムなバイトを生成
                         $deleteKey = bin2hex($randomBytes); // バイトを16進数に変換
-                        // $deleteURL = "/delete/?key=" . $uniqueKey;
 
-                        //削除日を設定（一時間後に設定しておく）
-//TODO test用のスケジュールなので本番用には変更する
+                        //削除日を設定（一日後に設定しておく）
                         $now = new DateTime(); // 現在時刻を取得
-                        $intervalSpec = Constants::EXPIRE_SPAN; // １時間後に失効にする
-                        // $now->add(new DateInterval($intervalSpec)); // 時間を加える       //test     
+                        $intervalSpec = Constants::EXPIRE_SPAN; // １日後に失効にする
+                        $now->add(new DateInterval($intervalSpec)); // 時間を加える       //test     
                         $expireDateTime = $now->format('Y-m-d H:i:s'); //形式を整える
 
                         
-
-
-
                         $result = DatabaseHelper::insertImage($uid, $fileNameRes["value"], $fileTypeRes["value"], $deleteKey,  $expireDateTime);
 
                         // セッションにアップロード履歴を入れる
