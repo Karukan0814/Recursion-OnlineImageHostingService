@@ -1,5 +1,6 @@
 <?php
 
+use Helpers\Constants;
 use Helpers\DatabaseHelper;
 use Helpers\ValidationHelper;
 use Response\HTTPRenderer;
@@ -11,14 +12,10 @@ use Response\Render\JSONRenderer;
 
 return [
     '' => function (): HTTPRenderer {
-        //初期表示　スニペットリストページ
+        //初期表示　リストページ
 
-        //期限切れのスニペット全てを削除する
-        DatabaseHelper::deleteAllExpiredSnippets();
-
-        // 登録してある全てのスニペットを表示
-        $snippets = DatabaseHelper::getAllSnippets();
-        return new HTMLRenderer('list', ['snippets' => $snippets]);
+        $images = DatabaseHelper::getAllImages();
+        return new HTMLRenderer('list', ['images' => $images]);
     },
     'create' => function (): HTTPRenderer {
         //スニペット作成ページ
@@ -88,11 +85,13 @@ return [
                         // $deleteURL = "/delete/?key=" . $uniqueKey;
 
                         //削除日を設定（一時間後に設定しておく）
-
+//TODO test用のスケジュールなので本番用には変更する
                         $now = new DateTime(); // 現在時刻を取得
-                        $intervalSpec = "PT1H"; // １時間後に失効にする
-                        $now->add(new DateInterval($intervalSpec)); // 時間を加える            
+                        $intervalSpec = Constants::EXPIRE_SPAN; // １時間後に失効にする
+                        // $now->add(new DateInterval($intervalSpec)); // 時間を加える       //test     
                         $expireDateTime = $now->format('Y-m-d H:i:s'); //形式を整える
+
+                        
 
 
 
@@ -129,6 +128,8 @@ return [
         $allErrors = [];
         // GETで渡されたuidの受け取り
         $uid = $_GET['uid'] ?? null;
+
+
         if (is_null($uid)) {
 
             $allErrors[] = "uid is necessary.";
@@ -145,7 +146,6 @@ return [
         // 画像情報の取得
 
         $image = DatabaseHelper::getImageByUid($uid);
-
         return new HTMLRenderer('show-image', ['image' => $image]);
     },
     'delete' => function (): HTTPRenderer {
@@ -173,7 +173,7 @@ return [
             return new HTMLRenderer('delete-result', ['errors' => $allErrors]);
         }
 
-        // ファイルの保存処理
+        // ファイルの削除処理
         $fileDirectory = $_SERVER['DOCUMENT_ROOT'] . "/img"; // プロジェクトのルートディレクトリに対する相対パス
         $fielPath = $fileDirectory . "/" . $image['uid'] . rawurlencode($image['name']); // アップロード先のパスを作成（ファイル名を含む）
         print_r($fielPath);
