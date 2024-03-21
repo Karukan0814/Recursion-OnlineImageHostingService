@@ -87,6 +87,10 @@ docker-compose exec web php console migrate --init
    - ②. 以下を追加の上、保存
      ```
      0 0 * * * cd /mnt/[プロジェクトのディレクトリ] && /usr/bin/php delete-unusedFiles.php
+
+
+
+※TODO 画像保存時のフォルダ構成について再考
      ```
    - ③. cron ジョブをスタートさせる
      ```
