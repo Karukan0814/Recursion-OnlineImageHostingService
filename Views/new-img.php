@@ -25,12 +25,12 @@ $db = new MySQLWrapper();
 </div>
     <div class="row">
         <div class="col">
-            <h2>画像アップロード</h2>
+            <h3 class="mt-1">Upload an image file </h3>
             <form id="upload-form" action="register" method="post" enctype="multipart/form-data">
                 <input type="file" id="image-input" name="image" accept="image/*">
-                <button type="submit">upload</button>
+                <button type="submit" class="btn btn-primary">upload</button>
             </form>
-            <div id="preview"></div>
+            <div id="preview" class="mt-2"></div>
 
 
         </div>
