@@ -80,23 +80,19 @@ docker-compose exec web php console migrate --init
 7. Cron ジョブの設定
    　期限切れの画像を一日に一度、一括削除するバッチ処理を動かす。
    　※以下は WSL 環境下での設定方法です。
+   - ①. WSL で cron ジョブの設定ファイルを開く
+     ```
+     crontab -e
+     ```
+   - ②. 以下を追加の上、保存
+     ```
+     0 0 * * * cd /mnt/[プロジェクトのディレクトリ] && /usr/bin/php delete-unusedFiles.php
 
-①. WSL で cron ジョブの設定ファイルを開く
 
-```
-crontab -e
-```
 
-②. 以下を追加の上、保存
-
-```
-0 0 * * * cd /mnt/[プロジェクトのディレクトリ] && /usr/bin/php delete-unusedFiles.php
-
-```
-
-③. cron ジョブをスタートさせる
-
-```
-sudo service cron start
-
-```
+※TODO 画像保存時のフォルダ構成について再考
+     ```
+   - ③. cron ジョブをスタートさせる
+     ```
+     sudo service cron start
+     ```
